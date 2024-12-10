@@ -47,17 +47,19 @@ if feriado != "TODOS":
     cumplimiento = df_feriado[feriado].value_counts(normalize=True) * 100
     cumplimiento = cumplimiento.reindex(["SI", "NO"], fill_value=0)
 
-    # Crear gráfico de pie
+    # Crear gráfico de pie con colores pastel
     st.subheader(f"Porcentaje de cumplimiento para {feriado}")
     fig, ax = plt.subplots()
     ax.pie(
         cumplimiento,
         labels=["Cumplió", "No cumplió"],
-        colors=["blue", "red"],
-        autopct="%1.1f%%",
-        startangle=90
+        autopct='%1.1f%%',
+        colors=["#A7C7E7", "#F4A7B9"],  # Colores pastel
+        startangle=90,
+        wedgeprops={"edgecolor": "white"},
     )
     ax.axis("equal")  # Asegurar que el gráfico sea circular
+    plt.title(f"Porcentaje de Cumplimiento para {feriado}")
     st.pyplot(fig)
 
     # Mostrar instructores que no cumplieron
