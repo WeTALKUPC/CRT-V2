@@ -25,23 +25,13 @@ feriado = st.selectbox("Selecciona un feriado (o TODOS):", ["TODOS"] + list(feri
 instructores = df["INSTRUCTOR"].unique()
 instructor = st.selectbox("Selecciona un instructor:", ["TODOS"] + list(instructores))
 
-# Lista de programas
-programas = df["PROGRAMA"].unique()
-programa = st.selectbox("Selecciona un programa:", ["TODOS"] + list(programas))
-
-# Aplicar filtro por instructor y programa
-if instructor != "TODOS":
-    df_filtrado = df[df["INSTRUCTOR"] == instructor]
-else:
-    df_filtrado = df
-
-if programa != "TODOS":
-    df_filtrado = df_filtrado[df_filtrado["PROGRAMA"] == programa]
+# Selector para estado de cumplimiento (SI o NO)
+estado = st.selectbox("Selecciona un estado de cumplimiento:", ["SI", "NO"])
 
 # Mostrar resultados para el feriado seleccionado
 if feriado != "TODOS":
     # Excluir "NO TENÍA CLASES" del cálculo
-    df_feriado = df_filtrado[df_filtrado[feriado] != "NO TENÍA CLASES"]
+    df_feriado = df[df[feriado] != "NO TENÍA CLASES"]
 
     # Calcular el porcentaje de cumplimiento
     cumplimiento = df_feriado[feriado].value_counts(normalize=True) * 100
@@ -64,13 +54,32 @@ if feriado != "TODOS":
         ax.text(v + 1, i, f"{v:.1f}%", color="black", va="center", fontsize=10)  # Mostrar valores al lado de las barras
     st.pyplot(fig)
 
-    # Mostrar instructores que no cumplieron
-    st.subheader(f"Instructores que no recuperaron clases en {feriado}")
-    no_cumplieron = df_feriado[df_feriado[feriado] == "NO"]
-    if not no_cumplieron.empty:
-        st.table(no_cumplieron[["INSTRUCTOR", "PROGRAMA", "OBSERVACIÓN"]])
-    else:
-        st.write("Todos los instructores cumplieron sus clases en este feriado.")
+# Mostrar cumplimiento anual por instructor
+if instructor != "TODOS":
+    st.subheader(f"Cumplimiento anual para el instructor: {instructor}")
+    cumplimiento_anual = {}
+    for feriado in feriados:
+        df_temp = df[df["INSTRUCTOR"] == instructor]
+        valores = df_temp[feriado].value_counts(normalize=True) * 100
+        cumplimiento_anual[feriado] = valores.get("SI", 0)
 
-else:
-    st.write("Selecciona un feriado específico para más detalles.")
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.bar(cumplimiento_anual.keys(), cumplimiento_anual.values(), color="#90EE90", edgecolor="black")
+    ax.set_ylabel("Porcentaje de Cumplimiento")
+    ax.set_xlabel("Feriados")
+    ax.set_title(f"Cumplimiento Anual de {instructor}")
+    plt.xticks(rotation=45, ha="right")
+    st.pyplot(fig)
+
+# Mostrar tabla de instructores según estado seleccionado
+st.subheader(f"Instructores con estado de cumplimiento: {estado}")
+resultados = df[df[feriados].apply(lambda row: row.str.contains(estado).any(), axis=1)]
+resultados = resultados.melt(
+    id_vars=["INSTRUCTOR", "PROGRAMA"],
+    value_vars=feriados,
+    var_name="Fecha",
+    value_name="Estado"
+)
+resultados = resultados[resultados["Estado"] == estado]
+resultados = resultados.rename(columns={"INSTRUCTOR": "Nombre", "PROGRAMA": "Programa", "Fecha": "Fecha no recuperada", "Estado": "Observación"})
+st.table(resultados[["Nombre", "Programa", "Fecha no recuperada", "Observación"]])
