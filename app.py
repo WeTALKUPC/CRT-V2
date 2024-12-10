@@ -49,17 +49,19 @@ if feriado != "TODOS":
 
     # Crear gráfico de barras horizontal
     st.subheader(f"Porcentaje de cumplimiento para {feriado}")
-    fig, ax = plt.subplots(figsize=(6, 4))  # Tamaño ajustado del gráfico
+    fig, ax = plt.subplots(figsize=(5, 1.5))  # Ajustar el tamaño del gráfico
     ax.barh(
         cumplimiento.index,
         cumplimiento.values,
         color=["#90EE90", "#FFCCCB"],  # Verde claro y rojo claro
-        edgecolor="black"
+        edgecolor="black",
+        height=0.3  # Ajustar la altura de las barras
     )
     ax.set_xlabel("Porcentaje")
-    ax.set_ylabel("Estado")
-    ax.set_title(f"Cumplimiento para {feriado}")
-    plt.xlim(0, 100)  # Limitar el eje X a 100%
+    ax.set_xlim(0, 100)  # Limitar el eje X a 100%
+    ax.tick_params(axis="y", labelsize=10)  # Ajustar el tamaño de las etiquetas
+    for i, v in enumerate(cumplimiento.values):
+        ax.text(v + 1, i, f"{v:.1f}%", color="black", va="center", fontsize=10)  # Mostrar valores al lado de las barras
     st.pyplot(fig)
 
     # Mostrar instructores que no cumplieron
