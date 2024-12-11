@@ -25,8 +25,8 @@ feriado = st.selectbox("Selecciona un feriado (o TODOS):", ["TODOS"] + list(feri
 instructores = df["INSTRUCTOR"].unique()
 instructor = st.selectbox("Selecciona un instructor:", ["TODOS"] + list(instructores))
 
-# Selector para estado de cumplimiento (SI o NO)
-estado = st.selectbox("Selecciona un estado de cumplimiento:", ["SI", "NO"])
+# Selector para estado de cumplimiento (TODOS, SI, NO)
+estado = st.selectbox("Selecciona un estado de cumplimiento:", ["TODOS", "SI", "NO"])
 
 # Mostrar resultados para el feriado seleccionado
 if feriado != "TODOS":
@@ -72,14 +72,35 @@ if instructor != "TODOS":
     st.pyplot(fig)
 
 # Mostrar tabla de instructores según estado seleccionado
-st.subheader(f"Instructores con estado de cumplimiento: {estado}")
-resultados = df[df[feriados].apply(lambda row: row.str.contains(estado).any(), axis=1)]
-resultados = resultados.melt(
-    id_vars=["INSTRUCTOR", "PROGRAMA"],
-    value_vars=feriados,
-    var_name="Fecha",
-    value_name="Estado"
-)
-resultados = resultados[resultados["Estado"] == estado]
-resultados = resultados.rename(columns={"INSTRUCTOR": "Nombre", "PROGRAMA": "Programa", "Fecha": "Fecha no recuperada", "Estado": "Observación"})
-st.table(resultados[["Nombre", "Programa", "Fecha no recuperada", "Observación"]])
+if estado != "TODOS":
+    st.subheader(f"Instructores con estado de cumplimiento: {estado}")
+    resultados = df[df[feriados].apply(lambda row: row.str.contains(estado).any(), axis=1)]
+    resultados = resultados.melt(
+        id_vars=["INSTRUCTOR", "PROGRAMA"],
+        value_vars=feriados,
+        var_name="Fecha",
+        value_name="Estado"
+    )
+    resultados = resultados[resultados["Estado"] == estado]
+    resultados = resultados.rename(columns={
+        "INSTRUCTOR": "Nombre",
+        "PROGRAMA": "Programa",
+        "Fecha": "Fecha no recuperada",
+        "Estado": "Observación"
+    })
+    st.table(resultados[["Nombre", "Programa", "Fecha no recuperada", "Observación"]])
+else:
+    st.subheader("Instructores con cualquier estado de cumplimiento")
+    resultados = df.melt(
+        id_vars=["INSTRUCTOR", "PROGRAMA"],
+        value_vars=feriados,
+        var_name="Fecha",
+        value_name="Estado"
+    )
+    resultados = resultados.rename(columns={
+        "INSTRUCTOR": "Nombre",
+        "PROGRAMA": "Programa",
+        "Fecha": "Fecha no recuperada",
+        "Estado": "Observación"
+    })
+    st.table(resultados[["Nombre", "Programa", "Fecha no recuperada", "Observación"]])
