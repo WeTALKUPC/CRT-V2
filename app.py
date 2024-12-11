@@ -54,21 +54,37 @@ if feriado != "TODOS":
         ax.text(v + 1, i, f"{v:.1f}%", color="black", va="center", fontsize=10)  # Mostrar valores al lado de las barras
     st.pyplot(fig)
 
+    # Mostrar instructores que no cumplieron
+    st.subheader(f"Instructores que no recuperaron clases en {feriado}")
+    no_cumplieron = df_feriado[df_feriado[feriado] == "NO"]
+    if not no_cumplieron.empty:
+        st.table(no_cumplieron[["INSTRUCTOR", "PROGRAMA", "OBSERVACIÓN"]])
+    else:
+        st.write("Todos los instructores cumplieron sus clases en este feriado.")
+
 # Mostrar cumplimiento anual por instructor
 if instructor != "TODOS":
     st.subheader(f"Cumplimiento anual para el instructor: {instructor}")
-    cumplimiento_anual = {}
+    cumplimiento_anual = {"SI": [], "NO": [], "NO TENÍA CLASES": []}
+    fechas = []
+
     for feriado in feriados:
         df_temp = df[df["INSTRUCTOR"] == instructor]
-        valores = df_temp[feriado].value_counts(normalize=True) * 100
-        cumplimiento_anual[feriado] = valores.get("SI", 0)
+        valores = df_temp[feriado].value_counts()
+        cumplimiento_anual["SI"].append(valores.get("SI", 0))
+        cumplimiento_anual["NO"].append(valores.get("NO", 0))
+        cumplimiento_anual["NO TENÍA CLASES"].append(valores.get("NO TENÍA CLASES", 0))
+        fechas.append(feriado)
 
     fig, ax = plt.subplots(figsize=(8, 4))
-    ax.bar(cumplimiento_anual.keys(), cumplimiento_anual.values(), color="#90EE90", edgecolor="black")
-    ax.set_ylabel("Porcentaje de Cumplimiento")
+    ax.bar(fechas, cumplimiento_anual["SI"], label="Cumplió", color="#90EE90", edgecolor="black")
+    ax.bar(fechas, cumplimiento_anual["NO"], bottom=cumplimiento_anual["SI"], label="No cumplió", color="#FFCCCB", edgecolor="black")
+    ax.bar(fechas, cumplimiento_anual["NO TENÍA CLASES"], bottom=[cumplimiento_anual["SI"][i] + cumplimiento_anual["NO"][i] for i in range(len(fechas))], label="No tenía clases", color="#D3D3D3", edgecolor="black")
+    ax.set_ylabel("Cantidad")
     ax.set_xlabel("Feriados")
     ax.set_title(f"Cumplimiento Anual de {instructor}")
     plt.xticks(rotation=45, ha="right")
+    ax.legend()
     st.pyplot(fig)
 
 # Mostrar tabla de instructores según estado seleccionado
@@ -82,21 +98,6 @@ if estado != "TODOS":
         value_name="Estado"
     )
     resultados = resultados[resultados["Estado"] == estado]
-    resultados = resultados.rename(columns={
-        "INSTRUCTOR": "Nombre",
-        "PROGRAMA": "Programa",
-        "Fecha": "Fecha no recuperada",
-        "Estado": "Observación"
-    })
-    st.table(resultados[["Nombre", "Programa", "Fecha no recuperada", "Observación"]])
-else:
-    st.subheader("Instructores con cualquier estado de cumplimiento")
-    resultados = df.melt(
-        id_vars=["INSTRUCTOR", "PROGRAMA"],
-        value_vars=feriados,
-        var_name="Fecha",
-        value_name="Estado"
-    )
     resultados = resultados.rename(columns={
         "INSTRUCTOR": "Nombre",
         "PROGRAMA": "Programa",
