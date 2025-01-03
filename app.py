@@ -79,7 +79,7 @@ if instructor != "TODOS":
         cumplimiento_anual["NO TENÍA CLASES"].append(valores.get("NO TENÍA CLASES", 0))
         fechas.append(feriado)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(8, 5))
     ax.bar(fechas, cumplimiento_anual["SI"], label="Cumplió", color="#4CAF50", edgecolor="black", width=0.6)
     ax.bar(
         fechas, cumplimiento_anual["NO"],
@@ -97,12 +97,9 @@ if instructor != "TODOS":
     plt.xticks(rotation=45, ha="right", fontsize=10)
     plt.yticks(fontsize=10)
     ax.legend(fontsize=10, loc="upper right")
-    ax.grid(axis="y", linestyle="--", alpha=0.7)
 
-    for i, (si, no, no_clases) in enumerate(zip(cumplimiento_anual["SI"], cumplimiento_anual["NO"], cumplimiento_anual["NO TENÍA CLASES"])):
-        ax.text(i, si / 2, str(si), ha="center", va="center", fontsize=10, color="white", fontweight="bold")
-        ax.text(i, si + no / 2, str(no), ha="center", va="center", fontsize=10, color="white", fontweight="bold")
-        ax.text(i, si + no + no_clases / 2, str(no_clases), ha="center", va="center", fontsize=10, color="white", fontweight="bold")
+    # Quitar líneas de cuadrícula
+    ax.grid(False)
 
     st.pyplot(fig)
 
