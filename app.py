@@ -46,7 +46,7 @@ if instructor != "TODOS":
         fechas.append(feriado)
 
     # Crear un gráfico de barras apiladas
-    fig, ax = plt.subplots(figsize=(8, 4))  # Tamaño compacto del gráfico
+    fig, ax = plt.subplots(figsize=(7, 3))  # Tamaño más pequeño del gráfico
 
     # Datos para las barras
     cumplio = cumplimiento_anual["Cumplió"]
@@ -61,11 +61,10 @@ if instructor != "TODOS":
 
     # Etiquetas y formato
     ax.set_xticks(range(len(fechas)))
-    ax.set_xticklabels(fechas, rotation=45, ha="right", fontsize=10)
-    ax.set_ylabel("Cantidad de Clases", fontsize=12)
-    ax.set_xlabel("Feriados", fontsize=12)
-    ax.set_title(f"Cumplimiento Anual por Fecha para {instructor}", fontsize=14, fontweight="bold")
-    ax.legend(fontsize=10, loc="upper right")
+    ax.set_xticklabels(fechas, rotation=45, ha="right", fontsize=8)
+    ax.set_ylabel("Cantidad de Clases", fontsize=10)
+    ax.set_xlabel("Feriados", fontsize=10)
+    ax.legend(fontsize=8, loc="upper right")
 
     # Mostrar el gráfico
     st.pyplot(fig)
