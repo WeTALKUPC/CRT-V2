@@ -68,38 +68,39 @@ if feriado != "TODOS":
 # Mostrar cumplimiento anual por instructor
 if instructor != "TODOS":
     st.subheader(f"Cumplimiento anual para el instructor: {instructor}")
-    cumplimiento_anual = {"SI": [], "NO": [], "NO TENÍA CLASES": []}
+    cumplimiento_anual = {"Cumplió": [], "No cumplió": [], "No tenía clases": []}
     fechas = []
 
     for feriado in feriados:
         df_temp = df[df["INSTRUCTOR"] == instructor]
         valores = df_temp[feriado].value_counts()
-        cumplimiento_anual["SI"].append(valores.get("SI", 0))
-        cumplimiento_anual["NO"].append(valores.get("NO", 0))
-        cumplimiento_anual["NO TENÍA CLASES"].append(valores.get("NO TENÍA CLASES", 0))
+        cumplimiento_anual["Cumplió"].append(valores.get("SI", 0))
+        cumplimiento_anual["No cumplió"].append(valores.get("NO", 0))
+        cumplimiento_anual["No tenía clases"].append(valores.get("NO TENÍA CLASES", 0))
         fechas.append(feriado)
 
-    fig, ax = plt.subplots(figsize=(8, 5))
-    ax.bar(fechas, cumplimiento_anual["SI"], label="Cumplió", color="#4CAF50", edgecolor="black", width=0.6)
-    ax.bar(
-        fechas, cumplimiento_anual["NO"],
-        bottom=cumplimiento_anual["SI"], label="No cumplió",
-        color="#F44336", edgecolor="black", width=0.6
-    )
-    ax.bar(
-        fechas, cumplimiento_anual["NO TENÍA CLASES"],
-        bottom=[cumplimiento_anual["SI"][i] + cumplimiento_anual["NO"][i] for i in range(len(fechas))],
-        label="No tenía clases", color="#BDBDBD", edgecolor="black", width=0.6
-    )
-    ax.set_ylabel("Cantidad", fontsize=12)
-    ax.set_xlabel("Feriados", fontsize=12)
-    ax.set_title(f"Cumplimiento Anual de {instructor}", fontsize=16, fontweight="bold")
-    plt.xticks(rotation=45, ha="right", fontsize=10)
-    plt.yticks(fontsize=10)
-    ax.legend(fontsize=10, loc="upper right")
+    # Crear un gráfico de puntos (scatter plot)
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Quitar líneas de cuadrícula
-    ax.grid(False)
+    # Valores en el eje Y para cada categoría
+    y_values = {"Cumplió": 2, "No cumplió": 1, "No tenía clases": 0}
+
+    # Transformar datos
+    for categoria, valores in cumplimiento_anual.items():
+        y = [y_values[categoria]] * len(valores)
+        ax.scatter(fechas, y, color="#4CAF50" if categoria == "Cumplió" else "#F44336" if categoria == "No cumplió" else "#BDBDBD",
+                   label=categoria, s=100, edgecolor="black")
+
+    # Ajustar etiquetas y formato
+    ax.set_yticks(list(y_values.values()))
+    ax.set_yticklabels(list(y_values.keys()), fontsize=10)
+    ax.set_xticks(range(len(fechas)))
+    ax.set_xticklabels(fechas, rotation=45, ha="right", fontsize=10)
+    ax.set_title(f"Cumplimiento Anual por Fecha para {instructor}", fontsize=14, fontweight="bold")
+    ax.set_xlabel("Feriados", fontsize=12)
+    ax.set_ylabel("Estado de Cumplimiento", fontsize=12)
+    ax.legend(fontsize=10, loc="upper right")
+    ax.grid(axis="y", linestyle="--", alpha=0.7)
 
     st.pyplot(fig)
 
