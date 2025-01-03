@@ -31,40 +31,6 @@ instructor = st.selectbox("Selecciona un instructor:", ["TODOS"] + list(instruct
 # Selector para estado de cumplimiento (TODOS, SI, NO)
 estado = st.selectbox("Selecciona un estado de cumplimiento:", ["TODOS", "SI", "NO"])
 
-# Mostrar resultados para el feriado seleccionado
-if feriado != "TODOS":
-    # Excluir "NO TENÍA CLASES" del cálculo
-    df_feriado = df[df[feriado] != "NO TENÍA CLASES"]
-
-    # Calcular el porcentaje de cumplimiento
-    cumplimiento = df_feriado[feriado].value_counts(normalize=True) * 100
-    cumplimiento = cumplimiento.reindex(["SI", "NO"], fill_value=0)
-
-    # Crear gráfico de barras horizontal
-    st.subheader(f"Porcentaje de cumplimiento para {feriado}")
-    fig, ax = plt.subplots(figsize=(6, 2))
-    ax.barh(
-        cumplimiento.index,
-        cumplimiento.values,
-        color=["#4CAF50", "#F44336"],  # Verde y rojo
-        edgecolor="black",
-        height=0.4
-    )
-    ax.set_xlabel("Porcentaje")
-    ax.set_xlim(0, 100)
-    ax.tick_params(axis="y", labelsize=10)
-    for i, v in enumerate(cumplimiento.values):
-        ax.text(v + 1, i, f"{v:.1f}%", color="black", va="center", fontsize=10)
-    st.pyplot(fig)
-
-    # Mostrar instructores que no cumplieron
-    st.subheader(f"Instructores que no recuperaron clases en {feriado}")
-    no_cumplieron = df_feriado[df_feriado[feriado] == "NO"]
-    if not no_cumplieron.empty:
-        st.table(no_cumplieron[["INSTRUCTOR", "PROGRAMA", "OBSERVACIÓN"]])
-    else:
-        st.write("Todos los instructores cumplieron sus clases en este feriado.")
-
 # Mostrar cumplimiento anual por instructor
 if instructor != "TODOS":
     st.subheader(f"Cumplimiento anual para el instructor: {instructor}")
@@ -79,29 +45,29 @@ if instructor != "TODOS":
         cumplimiento_anual["No tenía clases"].append(valores.get("NO TENÍA CLASES", 0))
         fechas.append(feriado)
 
-    # Crear un gráfico de puntos (scatter plot)
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Crear un gráfico de barras apiladas
+    fig, ax = plt.subplots(figsize=(8, 4))  # Tamaño compacto del gráfico
 
-    # Valores en el eje Y para cada categoría
-    y_values = {"Cumplió": 2, "No cumplió": 1, "No tenía clases": 0}
+    # Datos para las barras
+    cumplio = cumplimiento_anual["Cumplió"]
+    no_cumplio = cumplimiento_anual["No cumplió"]
+    no_tenia_clases = cumplimiento_anual["No tenía clases"]
 
-    # Transformar datos
-    for categoria, valores in cumplimiento_anual.items():
-        y = [y_values[categoria]] * len(valores)
-        ax.scatter(fechas, y, color="#4CAF50" if categoria == "Cumplió" else "#F44336" if categoria == "No cumplió" else "#BDBDBD",
-                   label=categoria, s=100, edgecolor="black")
+    # Crear las barras apiladas
+    ax.bar(fechas, cumplio, label="Cumplió", color="#4CAF50", edgecolor="black")
+    ax.bar(fechas, no_cumplio, bottom=cumplio, label="No cumplió", color="#F44336", edgecolor="black")
+    ax.bar(fechas, no_tenia_clases, bottom=[cumplio[i] + no_cumplio[i] for i in range(len(cumplio))], 
+           label="No tenía clases", color="#BDBDBD", edgecolor="black")
 
-    # Ajustar etiquetas y formato
-    ax.set_yticks(list(y_values.values()))
-    ax.set_yticklabels(list(y_values.keys()), fontsize=10)
+    # Etiquetas y formato
     ax.set_xticks(range(len(fechas)))
     ax.set_xticklabels(fechas, rotation=45, ha="right", fontsize=10)
-    ax.set_title(f"Cumplimiento Anual por Fecha para {instructor}", fontsize=14, fontweight="bold")
+    ax.set_ylabel("Cantidad de Clases", fontsize=12)
     ax.set_xlabel("Feriados", fontsize=12)
-    ax.set_ylabel("Estado de Cumplimiento", fontsize=12)
+    ax.set_title(f"Cumplimiento Anual por Fecha para {instructor}", fontsize=14, fontweight="bold")
     ax.legend(fontsize=10, loc="upper right")
-    ax.grid(axis="y", linestyle="--", alpha=0.7)
 
+    # Mostrar el gráfico
     st.pyplot(fig)
 
 # Mostrar tabla de instructores según estado seleccionado
