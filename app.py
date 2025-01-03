@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 st.set_page_config(layout="wide")
 
 # Título del Dashboard
-st.title("Sistema de seguimiento de Recuperaciones de clase en feriados")
+st.title("Sistema de seguimiento de recuperaciones de clase en feriados")
 
 # Cargar el archivo Excel directamente desde el repositorio
 DATA_URL = "https://raw.githubusercontent.com/WeTALKUPC/CRT-V2/main/RECUPERACIONES%20FERIADOS%20V1.xlsx"
