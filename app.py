@@ -42,19 +42,19 @@ if feriado != "TODOS":
 
     # Crear gráfico de barras horizontal
     st.subheader(f"Porcentaje de cumplimiento para {feriado}")
-    fig, ax = plt.subplots(figsize=(5, 1.5))  # Ajustar el tamaño del gráfico
+    fig, ax = plt.subplots(figsize=(6, 2))
     ax.barh(
         cumplimiento.index,
         cumplimiento.values,
-        color=["#90EE90", "#FFCCCB"],  # Verde claro y rojo claro
+        color=["#4CAF50", "#F44336"],  # Verde y rojo
         edgecolor="black",
-        height=0.3  # Ajustar la altura de las barras
+        height=0.4
     )
     ax.set_xlabel("Porcentaje")
-    ax.set_xlim(0, 100)  # Limitar el eje X a 100%
-    ax.tick_params(axis="y", labelsize=10)  # Ajustar el tamaño de las etiquetas
+    ax.set_xlim(0, 100)
+    ax.tick_params(axis="y", labelsize=10)
     for i, v in enumerate(cumplimiento.values):
-        ax.text(v + 1, i, f"{v:.1f}%", color="black", va="center", fontsize=10)  # Mostrar valores al lado de las barras
+        ax.text(v + 1, i, f"{v:.1f}%", color="black", va="center", fontsize=10)
     st.pyplot(fig)
 
     # Mostrar instructores que no cumplieron
@@ -79,15 +79,31 @@ if instructor != "TODOS":
         cumplimiento_anual["NO TENÍA CLASES"].append(valores.get("NO TENÍA CLASES", 0))
         fechas.append(feriado)
 
-    fig, ax = plt.subplots(figsize=(8, 4))
-    ax.bar(fechas, cumplimiento_anual["SI"], label="Cumplió", color="#90EE90", edgecolor="black")
-    ax.bar(fechas, cumplimiento_anual["NO"], bottom=cumplimiento_anual["SI"], label="No cumplió", color="#FFCCCB", edgecolor="black")
-    ax.bar(fechas, cumplimiento_anual["NO TENÍA CLASES"], bottom=[cumplimiento_anual["SI"][i] + cumplimiento_anual["NO"][i] for i in range(len(fechas))], label="No tenía clases", color="#D3D3D3", edgecolor="black")
-    ax.set_ylabel("Cantidad")
-    ax.set_xlabel("Feriados")
-    ax.set_title(f"Cumplimiento Anual de {instructor}")
-    plt.xticks(rotation=45, ha="right")
-    ax.legend()
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(fechas, cumplimiento_anual["SI"], label="Cumplió", color="#4CAF50", edgecolor="black", width=0.6)
+    ax.bar(
+        fechas, cumplimiento_anual["NO"],
+        bottom=cumplimiento_anual["SI"], label="No cumplió",
+        color="#F44336", edgecolor="black", width=0.6
+    )
+    ax.bar(
+        fechas, cumplimiento_anual["NO TENÍA CLASES"],
+        bottom=[cumplimiento_anual["SI"][i] + cumplimiento_anual["NO"][i] for i in range(len(fechas))],
+        label="No tenía clases", color="#BDBDBD", edgecolor="black", width=0.6
+    )
+    ax.set_ylabel("Cantidad", fontsize=12)
+    ax.set_xlabel("Feriados", fontsize=12)
+    ax.set_title(f"Cumplimiento Anual de {instructor}", fontsize=16, fontweight="bold")
+    plt.xticks(rotation=45, ha="right", fontsize=10)
+    plt.yticks(fontsize=10)
+    ax.legend(fontsize=10, loc="upper right")
+    ax.grid(axis="y", linestyle="--", alpha=0.7)
+
+    for i, (si, no, no_clases) in enumerate(zip(cumplimiento_anual["SI"], cumplimiento_anual["NO"], cumplimiento_anual["NO TENÍA CLASES"])):
+        ax.text(i, si / 2, str(si), ha="center", va="center", fontsize=10, color="white", fontweight="bold")
+        ax.text(i, si + no / 2, str(no), ha="center", va="center", fontsize=10, color="white", fontweight="bold")
+        ax.text(i, si + no + no_clases / 2, str(no_clases), ha="center", va="center", fontsize=10, color="white", fontweight="bold")
+
     st.pyplot(fig)
 
 # Mostrar tabla de instructores según estado seleccionado
