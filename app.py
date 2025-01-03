@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Configurar el diseño en ancho completo
+st.set_page_config(layout="wide")
+
 # Título del Dashboard
 st.title("Dashboard de Cumplimiento por Feriado, Programa e Instructor")
 
