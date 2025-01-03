@@ -45,29 +45,34 @@ if instructor != "TODOS":
         cumplimiento_anual["No tenía clases"].append(valores.get("NO TENÍA CLASES", 0))
         fechas.append(feriado)
 
-    # Crear un gráfico de barras apiladas
-    fig, ax = plt.subplots(figsize=(7, 3))  # Tamaño más pequeño del gráfico
+    # Layout restringido para el gráfico
+    col1, col2, col3 = st.columns([1, 2, 1])  # Ajustar el espacio del gráfico al centro
+    with col2:
+        # Crear un gráfico de barras apiladas
+        fig, ax = plt.subplots(figsize=(6, 2))  # Reducir tamaño del gráfico
 
-    # Datos para las barras
-    cumplio = cumplimiento_anual["Cumplió"]
-    no_cumplio = cumplimiento_anual["No cumplió"]
-    no_tenia_clases = cumplimiento_anual["No tenía clases"]
+        # Datos para las barras
+        cumplio = cumplimiento_anual["Cumplió"]
+        no_cumplio = cumplimiento_anual["No cumplió"]
+        no_tenia_clases = cumplimiento_anual["No tenía clases"]
 
-    # Crear las barras apiladas
-    ax.bar(fechas, cumplio, label="Cumplió", color="#4CAF50", edgecolor="black")
-    ax.bar(fechas, no_cumplio, bottom=cumplio, label="No cumplió", color="#F44336", edgecolor="black")
-    ax.bar(fechas, no_tenia_clases, bottom=[cumplio[i] + no_cumplio[i] for i in range(len(cumplio))], 
-           label="No tenía clases", color="#BDBDBD", edgecolor="black")
+        # Crear las barras apiladas
+        ax.bar(fechas, cumplio, label="Cumplió", color="#4CAF50", edgecolor="black")
+        ax.bar(fechas, no_cumplio, bottom=cumplio, label="No cumplió", color="#F44336", edgecolor="black")
+        ax.bar(fechas, no_tenia_clases, bottom=[cumplio[i] + no_cumplio[i] for i in range(len(cumplio))], 
+               label="No tenía clases", color="#BDBDBD", edgecolor="black")
 
-    # Etiquetas y formato
-    ax.set_xticks(range(len(fechas)))
-    ax.set_xticklabels(fechas, rotation=45, ha="right", fontsize=8)
-    ax.set_ylabel("Cantidad de Clases", fontsize=10)
-    ax.set_xlabel("Feriados", fontsize=10)
-    ax.legend(fontsize=8, loc="upper right")
+        # Eliminar eje Y
+        ax.get_yaxis().set_visible(False)
 
-    # Mostrar el gráfico
-    st.pyplot(fig)
+        # Etiquetas y formato
+        ax.set_xticks(range(len(fechas)))
+        ax.set_xticklabels(fechas, rotation=45, ha="right", fontsize=8)
+        ax.set_xlabel("Feriados", fontsize=10)
+        ax.legend(fontsize=8, loc="upper right")
+
+        # Mostrar el gráfico
+        st.pyplot(fig)
 
 # Mostrar tabla de instructores según estado seleccionado
 if estado != "TODOS":
